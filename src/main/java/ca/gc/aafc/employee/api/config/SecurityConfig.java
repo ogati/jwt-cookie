@@ -35,18 +35,6 @@ public class SecurityConfig {
     
 	@Bean
     SecurityFilterChain filterChain(HttpSecurity http, JwtFilter jwtFilter) throws Exception {
-		// header-based authN: start
-//        http.csrf(csrf -> csrf.disable())
-//        	.sessionManagement(session ->
-//                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-//            .authorizeHttpRequests(auth -> 
-//            	auth.requestMatchers("/index.html", "/login", "/h2-console/**").permitAll() // rule 1
-//	                .requestMatchers("/admin/**").hasRole("ADMIN")                          // rule 2
-//	                .anyRequest().authenticated())                                          // rule 3
-//            .headers(headers -> headers.frameOptions(frame -> frame.disable()));     // removed in prod
-        // header-based authN: end
-		
-		// cookie-based authN: start
 		http.csrf(csrf -> csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
 				.csrfTokenRequestHandler(new SpaCsrfTokenRequestHandler()))
     		.sessionManagement(session ->
@@ -57,7 +45,6 @@ public class SecurityConfig {
 		  				.anyRequest().authenticated())
     		.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
     		.headers(headers -> headers.frameOptions(frame -> frame.disable()));     // removed in prod
-		// cookie-based authN: end
 		
         return http.build();
     }
