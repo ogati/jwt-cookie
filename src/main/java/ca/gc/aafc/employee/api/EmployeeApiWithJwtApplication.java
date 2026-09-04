@@ -9,6 +9,6 @@ import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 public class EmployeeApiWithJwtApplication {
 	
 	public static void main(String[] args) {
-		SpringApplication.run(EmployeeApiWithJwtApplication.class, args);
+		SpringApplication.run(EmployeeApiWithJwtApplication.class, args); 
 	}
 }
