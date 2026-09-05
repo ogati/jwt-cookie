@@ -2,6 +2,7 @@ package ca.gc.aafc.employee.api.auth;
 
 import java.io.IOException;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -21,37 +22,29 @@ import io.jsonwebtoken.JwtException;
 @Component
 public class JwtFilter extends OncePerRequestFilter {
 	
-    private final JwtService jwtService;
-    private final CustomUserDetailsService userDetailsService;
+	private final JwtService jwtService;
+    private final CustomUserDetailsService userDetailsService;    
+    private final String cookieName;
     
-    public JwtFilter(JwtService jwtService, CustomUserDetailsService userDetailsService) {
+    public JwtFilter(JwtService jwtService, CustomUserDetailsService userDetailsService,
+    		@Value("${app.cookie.name}") String cookieName) {
         this.jwtService = jwtService;
         this.userDetailsService = userDetailsService;
+        this.cookieName = cookieName;
     }
     
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
             FilterChain filterChain) throws ServletException, IOException {
-    	// Header-based authN: start
-//        String header = request.getHeader("Authorization");
-//        if (header == null || !header.startsWith("Bearer ")) { // if no token, the request is for login page
-//            filterChain.doFilter(request, response);
-//            return;
-//        }
-//        
-//        String jwt = header.substring(7);
-//        if (token.isBlank()) {
-//            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid JWT");
-//            return;
-//        }
-    	// Header-based authN: end
+    	// Avoid 403 on /favicon.ico and errors in console
+    	String uri = request.getRequestURI();
+    	if (uri.startsWith("/favicon.ico") || uri.startsWith("/.well-known")) return;
     	
-    	// Cookie-based authN: start
     	String jwt = null;
     	Cookie[] cookies = request.getCookies();
     	if (cookies != null) {
     	    for (Cookie cookie : cookies) {
-    	        if ("JWT".equals(cookie.getName())) {
+    	        if (cookieName.equals(cookie.getName())) {
     	            jwt = cookie.getValue();
     	            break;
     	        }
@@ -62,7 +55,6 @@ public class JwtFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
             return;
         }
-        // Cookie-based authN: end
     	
         try {
             String username = jwtService.extractUsername(jwt);
@@ -78,10 +70,8 @@ public class JwtFilter extends OncePerRequestFilter {
 	        }
         } catch (JwtException e) {
             SecurityContextHolder.clearContext();
-            
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid JWT");
             // response.sendRedirect("/401"); // src/main/webapp/WEB-INF/views/401.jsp
-            
             return;
         }
         

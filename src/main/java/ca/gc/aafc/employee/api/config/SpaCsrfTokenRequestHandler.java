@@ -9,30 +9,22 @@ import org.springframework.security.web.csrf.CsrfTokenRequestHandler;
 import org.springframework.security.web.csrf.XorCsrfTokenRequestAttributeHandler;
 import org.springframework.util.StringUtils;
 
+// For SPA frontends only
 public final class SpaCsrfTokenRequestHandler extends CsrfTokenRequestAttributeHandler {
     private final CsrfTokenRequestHandler delegate = new XorCsrfTokenRequestAttributeHandler();
     
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, Supplier<CsrfToken> csrfToken) {
-        /*
-         * Always use XorCsrfTokenRequestAttributeHandler to provide BREACH protection.
-         */
-        this.delegate.handle(request, response, csrfToken);
+        delegate.handle(request, response, csrfToken);
+        csrfToken.get();
     }
     
     @Override
     public String resolveCsrfTokenValue(HttpServletRequest request, CsrfToken csrfToken) {
-        /*
-         * If the request contains a request header (e.g., X-XSRF-TOKEN from fetch/axios),
-         * use plain CsrfTokenRequestAttributeHandler to resolve the raw token.
-         */
-        if (StringUtils.hasText(request.getHeader(csrfToken.getHeaderName()))) {
+    	if (StringUtils.hasText(request.getHeader(csrfToken.getHeaderName()))) {
             return super.resolveCsrfTokenValue(request, csrfToken);
         }
-        /*
-         * In all other cases (like server-rendered forms using _csrf parameter),
-         * resolve via XorCsrfTokenRequestAttributeHandler.
-         */
-        return this.delegate.resolveCsrfTokenValue(request, csrfToken);
+    	
+        return delegate.resolveCsrfTokenValue(request, csrfToken);
     }
 }

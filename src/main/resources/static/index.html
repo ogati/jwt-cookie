@@ -3,10 +3,9 @@
 <body>
     <h2>Login</h2>
 	
-	<!-- cookie-based authN: start -->
 	<form id="loginForm" action="/login" method="POST">
-		<input id="username" placeholder="Username">
-		<input id="password" type="password" placeholder="Password">
+		<input id="username" name="username" placeholder="Username">
+		<input id="password" name="password" type="password" placeholder="Password">
 	    <button type="submit">Login</button>
 	</form>
 	
@@ -20,7 +19,7 @@
 		
 	    const csrf = getCookie("XSRF-TOKEN");
 		
-	    await fetch("/login", {
+	    const res = await fetch("/login", {
 	        method: "POST",
 	        headers: {
 	            "Content-Type": "application/json",
@@ -31,37 +30,10 @@
 	            password: password.value
 	        })
 	    });
+		
+		const data = await res.json();
+		document.write(`<pre>${JSON.stringify(data, null, 4)}</pre>`)
 	}
 	</script>
-	<!-- cookie-based authN: end -->
-	
-	<!-- header-based authN: start -->
-	<!--<form id="loginForm">
-	    <input id="username" placeholder="Username">
-	    <input id="password" type="password" placeholder="Password">
-	    <button>Login</button>
-	</form>
-
-	<script>
-	document.getElementById("loginForm").onsubmit = async (e) => {
-	    e.preventDefault();
-		
-	    const res = await fetch("/login", {
-	        method: "POST",
-	        headers: {"Content-Type":"application/json"},
-	        body: JSON.stringify({
-	            username: username.value,
-	            password: password.value
-	        })
-	    });
-		
-	    const data = await res.json();
-	    localStorage.setItem("jwt", data.token);
-		
-		// Redirected to home page
-		// e.g., window.location.href = "/employee.html"; (employee.html calls "/employees" via fetch() in JS)
-	};
-	</script>-->
-	<!-- header-based authN: end -->
 </body>
 </html>
