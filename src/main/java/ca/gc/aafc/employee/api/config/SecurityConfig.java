@@ -3,6 +3,7 @@ package ca.gc.aafc.employee.api.config;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -34,20 +35,24 @@ public class SecurityConfig {
     }
     
 	@Bean
-    SecurityFilterChain filterChain(HttpSecurity http, JwtFilter jwtFilter) throws Exception {
+    SecurityFilterChain filterChain(HttpSecurity http, 
+    		JwtFilter jwtFilter, Environment environment) throws Exception {
 		http
 			.csrf(csrf -> csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
 					.ignoringRequestMatchers("/login")
 //				.csrfTokenRequestHandler(new SpaCsrfTokenRequestHandler()) // needed only for SPA frontends
-				)			
-    		.sessionManagement(session ->
+				)
+    		.sessionManagement(session -> 
 					session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
     		.authorizeHttpRequests(auth -> 
 		  			auth.requestMatchers("/index.html", "/login", "/h2-console/**").permitAll()
 		  				.requestMatchers("/admin/**").hasRole("ADMIN")
 		  				.anyRequest().authenticated())
-    		.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
-    		.headers(headers -> headers.frameOptions(frame -> frame.disable()));     // removed in prod
+    		.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+		
+		if (environment.matchesProfiles("dev")) {
+    		http.headers(headers -> headers.frameOptions(frame -> frame.disable()));
+		}
 		
         return http.build();
     }
