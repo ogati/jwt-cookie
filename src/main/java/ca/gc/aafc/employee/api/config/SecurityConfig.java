@@ -39,9 +39,8 @@ public class SecurityConfig {
     		JwtFilter jwtFilter, Environment environment) throws Exception {
 		http.csrf(csrf -> 
 					csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-						.ignoringRequestMatchers("/login")
-//				.csrfTokenRequestHandler(new SpaCsrfTokenRequestHandler()) // needed only for SPA frontends
-				)
+//						.csrfTokenRequestHandler(new SpaCsrfTokenRequestHandler()) // needed only for SPA frontends
+						.ignoringRequestMatchers("/login"))
     		.sessionManagement(session -> 
 					session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
     		.authorizeHttpRequests(auth -> 
