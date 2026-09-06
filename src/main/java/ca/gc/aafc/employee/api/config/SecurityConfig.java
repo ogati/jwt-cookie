@@ -37,8 +37,9 @@ public class SecurityConfig {
 	@Bean
     SecurityFilterChain filterChain(HttpSecurity http, 
     		JwtFilter jwtFilter, Environment environment) throws Exception {
-		http.csrf(csrf -> csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-					.ignoringRequestMatchers("/login")
+		http.csrf(csrf -> 
+					csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+						.ignoringRequestMatchers("/login")
 //				.csrfTokenRequestHandler(new SpaCsrfTokenRequestHandler()) // needed only for SPA frontends
 				)
     		.sessionManagement(session -> 
