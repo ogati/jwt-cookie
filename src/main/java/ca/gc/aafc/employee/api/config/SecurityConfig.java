@@ -1,5 +1,8 @@
 package ca.gc.aafc.employee.api.config;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -35,8 +38,14 @@ public class SecurityConfig {
     }
     
 	@Bean
-    SecurityFilterChain filterChain(HttpSecurity http, 
-    		JwtFilter jwtFilter, Environment environment) throws Exception {
+    SecurityFilterChain filterChain(HttpSecurity http, JwtFilter jwtFilter, Environment env) throws Exception {
+		List<String> urls = new ArrayList<>(List.of("/index.html", "/login"));
+		
+	    if (env.matchesProfiles("dev")) {
+	    	urls.add("/h2-console");
+    		http.headers(headers -> headers.frameOptions(frame -> frame.disable()));
+	    }
+	    
 		http.csrf(csrf -> 
 					csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
 //						.csrfTokenRequestHandler(new SpaCsrfTokenRequestHandler()) // needed only for SPA frontends
@@ -44,12 +53,12 @@ public class SecurityConfig {
     		.sessionManagement(session -> 
 					session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
     		.authorizeHttpRequests(auth -> 
-		  			auth.requestMatchers("/index.html", "/login", "/h2-console/**").permitAll()
+		  			auth.requestMatchers(urls.toArray(String[]::new)).permitAll()
 		  				.requestMatchers("/admin/**").hasRole("ADMIN")
 		  				.anyRequest().authenticated())
     		.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 		
-		if (environment.matchesProfiles("dev")) {
+		if (env.matchesProfiles("dev")) {
     		http.headers(headers -> headers.frameOptions(frame -> frame.disable()));
 		}
 		
