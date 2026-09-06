@@ -49,7 +49,7 @@ public class SecurityConfig {
 		http.csrf(csrf -> 
 					csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
 //						.csrfTokenRequestHandler(new SpaCsrfTokenRequestHandler()) // needed only for SPA frontends
-						.ignoringRequestMatchers("/login"))
+						.ignoringRequestMatchers("/login", "/h2-console/**"))
     		.sessionManagement(session -> 
 					session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
     		.authorizeHttpRequests(auth -> 
