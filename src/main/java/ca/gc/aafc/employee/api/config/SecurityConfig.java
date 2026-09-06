@@ -42,7 +42,7 @@ public class SecurityConfig {
 		List<String> urls = new ArrayList<>(List.of("/index.html", "/login"));
 		
 	    if (env.matchesProfiles("dev")) {
-	    	urls.add("/h2-console");
+	    	urls.add("/h2-console/**");
     		http.headers(headers -> headers.frameOptions(frame -> frame.disable()));
 	    }
 	    
