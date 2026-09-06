@@ -58,10 +58,6 @@ public class SecurityConfig {
 		  				.anyRequest().authenticated())
     		.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 		
-		if (env.matchesProfiles("dev")) {
-    		http.headers(headers -> headers.frameOptions(frame -> frame.disable()));
-		}
-		
         return http.build();
     }
 	
