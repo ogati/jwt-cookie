@@ -43,6 +43,6 @@ public class AuthController {
                 .build();
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
         
-        return "redirect:/employees";
+        return "redirect:/employees"; // make a GET reqeust
     }
 }
